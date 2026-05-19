@@ -4,6 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import express from "express";
+import { AxiosError } from "axios";
 import { DocmostClient, getOrCreateClient } from "./services/api-client.js";
 import { registerPageTools } from "./tools/pages.js";
 import { registerSpaceTools } from "./tools/spaces.js";
@@ -75,15 +76,33 @@ async function runHttp(): Promise<void> {
       await server.connect(transport);
       await transport.handleRequest(req, res, req.body);
     } catch (error) {
+      let detail = error instanceof Error ? error.message : String(error);
+      if (error instanceof AxiosError && error.response) {
+        detail = `HTTP ${error.response.status} from ${error.config?.url}: ${JSON.stringify(error.response.data)}`;
+      }
+      console.error("Auth error:", detail);
       res.status(401).json({
         jsonrpc: "2.0",
-        error: {
-          code: -32600,
-          message: `Authentication failed: ${error instanceof Error ? error.message : String(error)}`,
-        },
+        error: { code: -32600, message: `Authentication failed: ${detail}` },
         id: null,
       });
     }
+  });
+
+  app.get("/mcp", (_req, res) => {
+    res.status(405).json({
+      jsonrpc: "2.0",
+      error: { code: -32000, message: "SSE not supported in stateless mode. Use POST." },
+      id: null,
+    });
+  });
+
+  app.delete("/mcp", (_req, res) => {
+    res.status(405).json({
+      jsonrpc: "2.0",
+      error: { code: -32000, message: "Session termination not supported in stateless mode." },
+      id: null,
+    });
   });
 
   app.get("/health", (_req, res) => {
