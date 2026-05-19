@@ -49,7 +49,7 @@ export class DocmostClient {
     }
 
     http.defaults.headers.common["Cookie"] = authCookie;
-    await http.post("/users/me");
+    await http.post("/users/me", {});
 
     return new DocmostClient(http);
   }
