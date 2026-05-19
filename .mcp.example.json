@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "docmost": {
+      "type": "http",
+      "url": "$MCP_HOST/mcp",
+      "headers": {
+        "X-Docmost-Url": "$DOCMOST_URL",
+        "X-Docmost-Email": "$EMAIL",
+        "X-Docmost-Password": "$PASSWORD"
+      }
+    }
+  }
+}
