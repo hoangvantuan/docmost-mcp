@@ -1,12 +1,22 @@
 # Docmost MCP Server
 
-MCP server cho [Docmost](https://docmost.com) wiki. Cho phép AI agent đọc, tạo, sửa, xóa page và quản lý space qua MCP protocol.
+> MCP server that connects AI agents to [Docmost](https://docmost.com) wiki, enabling full page, space, comment, and user management through the [Model Context Protocol](https://modelcontextprotocol.io).
 
-Hỗ trợ 2 transport:
-- **stdio** cho tích hợp local (Claude Desktop, Claude Code)
-- **HTTP** cho tích hợp remote (multi-client, web service)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-5FA04E?logo=node.js&logoColor=white)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![MCP SDK](https://img.shields.io/badge/MCP_SDK-1.6-000000?logo=anthropic&logoColor=white)](https://modelcontextprotocol.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Cài đặt
+## Overview
+
+Docmost MCP Server exposes **36 tools** across four domains (pages, spaces, comments, users) so any MCP-compatible AI client can read, create, edit, and organize your Docmost wiki.
+
+Two transport modes:
+
+- **stdio** for local, single-user setups (Claude Desktop, Claude Code)
+- **HTTP** for remote, multi-user deployments with per-request authentication
+
+## Quick start
 
 ```bash
 git clone <repo-url>
@@ -15,40 +25,7 @@ npm install
 npm run build
 ```
 
-## Cấu hình
-
-### stdio mode (local, single user)
-
-Credentials qua env vars, authenticate 1 lần khi khởi động:
-
-```bash
-export DOCMOST_URL="http://localhost:3000"
-export DOCMOST_EMAIL="admin@example.com"
-export DOCMOST_PASSWORD="your-password"
-```
-
-### HTTP mode (remote, multi user)
-
-Server KHÔNG cần env vars cho Docmost credentials. Mỗi client tự gửi credentials qua HTTP headers:
-
-| Header | Mô tả |
-|--------|--------|
-| `X-Docmost-Url` | URL Docmost instance |
-| `X-Docmost-Email` | Email đăng nhập |
-| `X-Docmost-Password` | Password |
-
-Server cache session 30 phút theo URL+email (tránh login mỗi request).
-
-Biến tùy chọn:
-
-| Biến | Mô tả | Mặc định |
-|------|--------|----------|
-| `TRANSPORT` | `stdio` hoặc `http` | `stdio` |
-| `PORT` | Port cho HTTP transport | `3001` |
-
-## Chạy
-
-### stdio (local)
+### Run with stdio
 
 ```bash
 DOCMOST_URL="http://localhost:3000" \
@@ -57,26 +34,44 @@ DOCMOST_PASSWORD="your-password" \
 npm start
 ```
 
-### HTTP (remote)
+### Run with HTTP
 
 ```bash
 TRANSPORT=http PORT=3001 npm start
 ```
 
-Endpoint:
-- `POST /mcp` MCP protocol
-- `GET /health` health check
+> [!TIP]
+> Use `npm run dev` or `npm run dev:http` for hot-reload during development.
 
-### Dev mode
+## Configuration
 
-```bash
-npm run dev        # stdio + hot reload
-npm run dev:http   # HTTP + hot reload
-```
+### Environment variables
 
-## Tích hợp Claude Desktop
+| Variable | Description | stdio | HTTP |
+|----------|-------------|:-----:|:----:|
+| `DOCMOST_URL` | Docmost instance URL | Required | Via header |
+| `DOCMOST_EMAIL` | Login email | Required | Via header |
+| `DOCMOST_PASSWORD` | Login password | Required | Via header |
+| `TRANSPORT` | `stdio` or `http` | Default | Set `http` |
+| `PORT` | HTTP listen port | N/A | Default `3001` |
 
-Thêm vào `claude_desktop_config.json`:
+### HTTP headers
+
+In HTTP mode, each request carries its own credentials:
+
+| Header | Description |
+|--------|-------------|
+| `X-Docmost-Url` | Docmost instance URL |
+| `X-Docmost-Email` | Login email |
+| `X-Docmost-Password` | Login password |
+
+Sessions are cached for 30 minutes per URL+email pair.
+
+## Integration
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
 
 ```json
 {
@@ -94,9 +89,9 @@ Thêm vào `claude_desktop_config.json`:
 }
 ```
 
-## Tích hợp Claude Code
+### Claude Code (stdio)
 
-Thêm vào `.claude/settings.json`:
+Add to `.claude/settings.json`:
 
 ```json
 {
@@ -114,94 +109,9 @@ Thêm vào `.claude/settings.json`:
 }
 ```
 
-## Danh sách tool (36)
+### Claude Code (HTTP)
 
-### Pages (20)
-
-| Tool | Mô tả |
-|------|--------|
-| `docmost_search_pages` | Tìm page theo keyword, filter theo space/creator |
-| `docmost_get_page` | Lấy nội dung page (markdown/html/json) |
-| `docmost_create_page` | Tạo page mới trong space |
-| `docmost_update_page` | Cập nhật page (replace/append/prepend) |
-| `docmost_delete_page` | Xóa page (trash hoặc permanent) |
-| `docmost_restore_page` | Khôi phục page từ trash |
-| `docmost_list_pages` | Danh sách page gốc trong space |
-| `docmost_list_child_pages` | Danh sách page con |
-| `docmost_get_recent_pages` | Page cập nhật gần đây |
-| `docmost_list_trash` | Danh sách page trong trash |
-| `docmost_get_page_history` | Lịch sử phiên bản page |
-| `docmost_get_history_version` | Nội dung phiên bản cụ thể |
-| `docmost_move_page` | Sắp xếp lại vị trí page trong hierarchy |
-| `docmost_move_page_to_space` | Di chuyển page sang space khác |
-| `docmost_duplicate_page` | Nhân bản page |
-| `docmost_get_backlinks` | Incoming/outgoing backlinks |
-| `docmost_export_page` | Export HTML/Markdown |
-| `docmost_get_page_labels` | Labels gắn trên page |
-| `docmost_add_page_labels` | Thêm labels vào page |
-| `docmost_remove_page_label` | Xóa label khỏi page |
-
-### Spaces (10)
-
-| Tool | Mô tả |
-|------|--------|
-| `docmost_list_spaces` | Danh sách space |
-| `docmost_get_space` | Chi tiết space |
-| `docmost_create_space` | Tạo space mới |
-| `docmost_update_space` | Cập nhật space |
-| `docmost_delete_space` | Xóa space (KHÔNG thể hoàn tác) |
-| `docmost_list_space_members` | Danh sách thành viên |
-| `docmost_add_space_members` | Thêm thành viên vào space |
-| `docmost_remove_space_member` | Xóa thành viên khỏi space |
-| `docmost_change_space_member_role` | Đổi role thành viên |
-| `docmost_export_space` | Export toàn bộ space |
-
-### Comments (5)
-
-| Tool | Mô tả |
-|------|--------|
-| `docmost_get_comments` | Danh sách comment trên page |
-| `docmost_get_comment` | Chi tiết 1 comment |
-| `docmost_create_comment` | Tạo comment (TipTap JSON format) |
-| `docmost_update_comment` | Cập nhật comment |
-| `docmost_delete_comment` | Xóa comment |
-
-### Users (1)
-
-| Tool | Mô tả |
-|------|--------|
-| `docmost_get_current_user` | Thông tin user đang đăng nhập |
-
-## Tích hợp qua HTTP transport
-
-HTTP mode: server KHÔNG giữ credentials. Mỗi client tự gửi qua headers. Server cache session 30 phút theo URL+email.
-
-### 1. Khởi động server
-
-```bash
-TRANSPORT=http PORT=3001 npm start
-```
-
-Server lắng nghe tại `http://localhost:3001/mcp`. Không cần set DOCMOST_URL/EMAIL/PASSWORD.
-
-### 2. Kiểm tra server hoạt động
-
-```bash
-curl http://localhost:3001/health
-# {"status":"ok","server":"docmost-mcp-server","version":"1.2.0"}
-```
-
-### 3. Cấu hình MCP client
-
-Client cần gửi 3 headers mỗi request:
-
-```
-X-Docmost-Url: http://localhost:3000
-X-Docmost-Email: admin@example.com
-X-Docmost-Password: your-password
-```
-
-Ví dụ cấu hình cho Claude Code (`.claude/settings.json`):
+Start the server, then add to `.claude/settings.json`:
 
 ```json
 {
@@ -219,7 +129,81 @@ Ví dụ cấu hình cho Claude Code (`.claude/settings.json`):
 }
 ```
 
-### 4. Gọi trực tiếp (test/debug)
+## Tools (36)
+
+### Pages (20)
+
+| Tool | Description |
+|------|-------------|
+| `docmost_search_pages` | Search pages by keyword, filter by space or creator |
+| `docmost_get_page` | Get page content (markdown, html, or json) |
+| `docmost_create_page` | Create a new page in a space |
+| `docmost_update_page` | Update page content (replace, append, or prepend) |
+| `docmost_delete_page` | Move page to trash or permanently delete |
+| `docmost_restore_page` | Restore a page from trash |
+| `docmost_list_pages` | List root-level pages in a space |
+| `docmost_list_child_pages` | List child pages of a parent |
+| `docmost_get_recent_pages` | Get recently updated pages |
+| `docmost_list_trash` | List trashed pages in a space |
+| `docmost_get_page_history` | Get version history of a page |
+| `docmost_get_history_version` | Get content of a specific version |
+| `docmost_move_page` | Reorder a page within its hierarchy |
+| `docmost_move_page_to_space` | Move a page to another space |
+| `docmost_duplicate_page` | Duplicate a page and its children |
+| `docmost_get_backlinks` | Get incoming or outgoing backlinks |
+| `docmost_export_page` | Export page as HTML or Markdown |
+| `docmost_get_page_labels` | Get labels attached to a page |
+| `docmost_add_page_labels` | Add labels to a page |
+| `docmost_remove_page_label` | Remove a label from a page |
+
+### Spaces (10)
+
+| Tool | Description |
+|------|-------------|
+| `docmost_list_spaces` | List all accessible spaces |
+| `docmost_get_space` | Get space details |
+| `docmost_create_space` | Create a new space |
+| `docmost_update_space` | Update space settings |
+| `docmost_delete_space` | Delete a space (irreversible) |
+| `docmost_list_space_members` | List space members and roles |
+| `docmost_add_space_members` | Add users or groups to a space |
+| `docmost_remove_space_member` | Remove a member from a space |
+| `docmost_change_space_member_role` | Change a member's role |
+| `docmost_export_space` | Export all pages in a space |
+
+### Comments (5)
+
+| Tool | Description |
+|------|-------------|
+| `docmost_get_comments` | List comments on a page |
+| `docmost_get_comment` | Get a single comment |
+| `docmost_create_comment` | Add a comment (TipTap JSON format) |
+| `docmost_update_comment` | Update comment content |
+| `docmost_delete_comment` | Delete a comment |
+
+### Users (1)
+
+| Tool | Description |
+|------|-------------|
+| `docmost_get_current_user` | Get authenticated user info |
+
+## HTTP API
+
+### Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/mcp` | MCP protocol endpoint |
+| `GET` | `/health` | Health check |
+
+### Health check
+
+```bash
+curl http://localhost:3001/health
+# {"status":"ok","server":"docmost-mcp-server","version":"1.2.0"}
+```
+
+### Direct call (test/debug)
 
 ```bash
 curl -X POST http://localhost:3001/mcp \
@@ -235,27 +219,36 @@ curl -X POST http://localhost:3001/mcp \
   }'
 ```
 
-### 5. Deploy production
+### Production deployment
 
 ```bash
-# pm2 (chỉ cần TRANSPORT và PORT)
+# pm2
 pm2 start dist/index.js --name docmost-mcp \
   --env TRANSPORT=http \
   --env PORT=3001
 
-# docker
+# Docker
 docker build -t docmost-mcp .
-docker run -d -p 3001:3001 \
-  -e TRANSPORT=http \
-  docmost-mcp
+docker run -d -p 3001:3001 -e TRANSPORT=http docmost-mcp
 ```
 
-## Yêu cầu
+## Project structure
 
-- Node.js >= 18
-- Docmost instance đang chạy
-- Tài khoản Docmost có quyền truy cập
+```
+src/
+├── index.ts              # Entry point, transport setup
+├── constants.ts          # Limits and timeout config
+├── services/
+│   └── api-client.ts     # DocmostClient, session cache
+└── tools/
+    ├── pages.ts          # 20 page tools
+    ├── spaces.ts         # 10 space tools
+    ├── comments.ts       # 5 comment tools
+    └── users.ts          # 1 user tool
+```
 
-## License
+## Prerequisites
 
-MIT
+- **Node.js** >= 18
+- A running **Docmost** instance
+- A Docmost account with appropriate permissions
