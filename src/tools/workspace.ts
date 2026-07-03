@@ -172,7 +172,7 @@ export function registerWorkspaceTools(server: McpServer, client: DocmostClient)
 
   server.registerTool("docmost_get_invitation_link", {
     title: "Get Invitation Link",
-    description: "Get the shareable invitation link for a pending invitation. Self-hosted only — không hoạt động trên Docmost Cloud.",
+    description: "Get the shareable invitation link for a pending invitation. Self-hosted only; does not work on Docmost Cloud.",
     inputSchema: {
       invitationId: invitationIdSchema,
     },
