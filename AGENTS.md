@@ -14,7 +14,9 @@ src/
     ├── pages.ts          # 20 tool: search, CRUD, move, history, labels, backlinks, export
     ├── spaces.ts         # 10 tool: CRUD, members (add/remove/role), export
     ├── comments.ts       # 5 tool: list, get, create, update, delete
-    └── users.ts          # 1 tool: get current user
+    ├── users.ts          # 1 tool: get current user
+    ├── workspace.ts      # 10 tool: workspace members (5) + invitations (5)
+    └── groups.ts         # 8 tool: group CRUD + members
 ```
 
 ## Quy ước code
@@ -79,7 +81,7 @@ npm run start:http  # Chạy HTTP
 npm run dev         # Dev mode với hot reload
 ```
 
-## Danh sách 36 tool hiện tại
+## Danh sách 54 tool hiện tại
 
 ### Pages (20)
 - `docmost_search_pages` - Tìm page theo keyword
@@ -124,6 +126,28 @@ npm run dev         # Dev mode với hot reload
 
 ### Users (1)
 - `docmost_get_current_user` - Thông tin user đang đăng nhập
+
+### Workspace (10)
+- `docmost_list_workspace_members` - Danh sách thành viên workspace
+- `docmost_change_workspace_member_role` - Đổi role thành viên (owner/admin/member)
+- `docmost_deactivate_workspace_member` - Khóa tạm thành viên (khôi phục được)
+- `docmost_activate_workspace_member` - Kích hoạt lại thành viên
+- `docmost_delete_workspace_member` - Xóa hẳn thành viên khỏi workspace
+- `docmost_list_invitations` - Danh sách lời mời
+- `docmost_create_invitation` - Tạo lời mời (email + role, tùy chọn groupIds)
+- `docmost_resend_invitation` - Gửi lại lời mời
+- `docmost_revoke_invitation` - Hủy lời mời
+- `docmost_get_invitation_link` - Lấy link lời mời (self-hosted only)
+
+### Groups (8)
+- `docmost_list_groups` - Danh sách group
+- `docmost_get_group` - Chi tiết group
+- `docmost_create_group` - Tạo group
+- `docmost_update_group` - Cập nhật group
+- `docmost_delete_group` - Xóa group
+- `docmost_list_group_members` - Danh sách thành viên group
+- `docmost_add_group_members` - Thêm thành viên vào group
+- `docmost_remove_group_member` - Gỡ thành viên khỏi group
 
 ## Quy tắc bảo trì docs
 

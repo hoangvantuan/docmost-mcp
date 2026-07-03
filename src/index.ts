@@ -10,17 +10,21 @@ import { registerPageTools } from "./tools/pages.js";
 import { registerSpaceTools } from "./tools/spaces.js";
 import { registerCommentTools } from "./tools/comments.js";
 import { registerUserTools } from "./tools/users.js";
+import { registerWorkspaceTools } from "./tools/workspace.js";
+import { registerGroupTools } from "./tools/groups.js";
 
 function createServer(client: DocmostClient): McpServer {
   const server = new McpServer({
     name: "docmost-mcp-server",
-    version: "1.2.0",
+    version: "1.3.0",
   });
 
   registerPageTools(server, client);
   registerSpaceTools(server, client);
   registerCommentTools(server, client);
   registerUserTools(server, client);
+  registerWorkspaceTools(server, client);
+  registerGroupTools(server, client);
 
   return server;
 }
@@ -106,7 +110,7 @@ async function runHttp(): Promise<void> {
   });
 
   app.get("/health", (_req, res) => {
-    res.json({ status: "ok", server: "docmost-mcp-server", version: "1.2.0" });
+    res.json({ status: "ok", server: "docmost-mcp-server", version: "1.3.0" });
   });
 
   const port = parseInt(process.env.PORT || "3001", 10);

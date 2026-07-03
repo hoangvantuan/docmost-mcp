@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.3.0] - 2026-07-03
+### Added
+- 18 tool MCP quản lý workspace member, invitation, và group (36 → 54 tool):
+  - Workspace members (5): list, change-role, deactivate, activate, delete
+  - Workspace invitations (5): list, create, resend, revoke, get-link
+  - Groups (8): list, get, create, update, delete, list-members, add-members, remove-member
+- File mới: src/tools/workspace.ts, src/tools/groups.ts
+
+### Notes
+- Verify pagination (spec 4.1): các endpoint workspace/group dùng CURSOR-BASED
+  (param `{ limit, query, cursor }`), đã xác nhận với API Docmost thật — KHÁC
+  spaces/pages vốn number-based. Response: `{ data: { items, meta: { nextCursor, ... } }, success, status }`.
+
 ## [1.2.0] - 2026-05-19
 
 ### Changed

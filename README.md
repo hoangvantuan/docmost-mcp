@@ -9,7 +9,7 @@
 
 ## Overview
 
-Docmost MCP Server exposes **36 tools** across four domains (pages, spaces, comments, users) so any MCP-compatible AI client can read, create, edit, and organize your Docmost wiki.
+Docmost MCP Server exposes **54 tools** across six domains (pages, spaces, comments, users, workspace, groups) so any MCP-compatible AI client can read, create, edit, and organize your Docmost wiki.
 
 Two transport modes:
 
@@ -129,7 +129,7 @@ Start the server, then add to `.claude/settings.json`:
 }
 ```
 
-## Tools (36)
+## Tools (54)
 
 ### Pages (20)
 
@@ -187,6 +187,34 @@ Start the server, then add to `.claude/settings.json`:
 |------|-------------|
 | `docmost_get_current_user` | Get authenticated user info |
 
+### Workspace (10)
+
+| Tool | Description |
+|------|-------------|
+| `docmost_list_workspace_members` | List members of the workspace |
+| `docmost_change_workspace_member_role` | Change a workspace member's role (owner/admin/member) |
+| `docmost_deactivate_workspace_member` | Deactivate a workspace member (reversible) |
+| `docmost_activate_workspace_member` | Reactivate a previously deactivated member |
+| `docmost_delete_workspace_member` | Permanently remove a member from the workspace |
+| `docmost_list_invitations` | List pending workspace invitations |
+| `docmost_create_invitation` | Invite users to the workspace by email |
+| `docmost_resend_invitation` | Resend a pending invitation email |
+| `docmost_revoke_invitation` | Revoke a pending invitation |
+| `docmost_get_invitation_link` | Get the shareable invitation link (self-hosted only) |
+
+### Groups (8)
+
+| Tool | Description |
+|------|-------------|
+| `docmost_list_groups` | List groups in the workspace |
+| `docmost_get_group` | Get detailed info about a group |
+| `docmost_create_group` | Create a new group |
+| `docmost_update_group` | Update a group's name, description, or members |
+| `docmost_delete_group` | Delete a group (irreversible) |
+| `docmost_list_group_members` | List members of a group |
+| `docmost_add_group_members` | Add users to a group |
+| `docmost_remove_group_member` | Remove a user from a group |
+
 ## HTTP API
 
 ### Endpoints
@@ -200,7 +228,7 @@ Start the server, then add to `.claude/settings.json`:
 
 ```bash
 curl http://localhost:3001/health
-# {"status":"ok","server":"docmost-mcp-server","version":"1.2.0"}
+# {"status":"ok","server":"docmost-mcp-server","version":"1.3.0"}
 ```
 
 ### Direct call (test/debug)
@@ -244,7 +272,9 @@ src/
     ├── pages.ts          # 20 page tools
     ├── spaces.ts         # 10 space tools
     ├── comments.ts       # 5 comment tools
-    └── users.ts          # 1 user tool
+    ├── users.ts          # 1 user tool
+    ├── workspace.ts      # 10 workspace tools
+    └── groups.ts         # 8 group tools
 ```
 
 ## Prerequisites
